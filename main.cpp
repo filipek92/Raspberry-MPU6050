@@ -133,6 +133,10 @@ void loop() {
             printf("ypr  %7.2f %7.2f %7.2f    ", ypr[0] * 180/M_PI, ypr[1] * 180/M_PI, ypr[2] * 180/M_PI);
         }
 
+        if(features & FEATURE_ACCEL){
+            printf("accel %6d %6d %6d    ", aa.x, aa.y, aa.z);
+        }
+
         if(features & FEATURE_REALACCEL){
             // display real acceleration, adjusted to remove gravity
             printf("areal %6d %6d %6d    ", aaReal.x, aaReal.y, aaReal.z);
@@ -142,6 +146,10 @@ void loop() {
             // display initial world-frame acceleration, adjusted to remove gravity
             // and rotated based on known orientation from quaternion
             printf("aworld %6d %6d %6d    ", aaWorld.x, aaWorld.y, aaWorld.z);
+        }
+
+        if(features & FEATURE_GRAVITY){
+            printf("gravity %7.2f %7.2f %7.2f    ", gravity.x, gravity.y, gravity.z);
         }
     
         if(features & FEATURE_TEAPOT){

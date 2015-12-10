@@ -12,7 +12,7 @@ CC = g++
 CFLAGS = -Wall -g -DDMP_FIFO_RATE=9
 # define any directories containing header files other than /usr/include
 #
-INCLUDES = -I./lib
+INCLUDES = -I./lib -I/usr/local/include -L/usr/local/lib -lzmq -std=c++11
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify

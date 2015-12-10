@@ -7,6 +7,10 @@
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 
+#include "zhelpers.hpp"
+zmq::context_t context(1);
+zmq::socket_t publisher(context, ZMQ_PUB);
+
 // class default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
 // AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
@@ -87,6 +91,8 @@ void setup() {
         // (if it's going to break, usually the code will be 1)
         printf("DMP Initialization failed (code %d)\n", devStatus);
     }
+
+    publisher.bind("tcp://*:5563");
 }
 
 
@@ -117,7 +123,14 @@ void loop() {
         mpu.dmpGetAccel(&aa, fifoBuffer);
         mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
         mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+
+        char buffer[100];
+
+        sprintf(buffer, "%7.2f %7.2f %7.2f %7.2f", q.w,q.x,q.y,q.z);
         
+        s_sendmore (publisher, "QUAT");
+        s_send (publisher, buffer);
+
         if(features & FEATURE_QUATERNION){
             // display quaternion values in easy matrix form: w x y z
             printf("quat %7.2f %7.2f %7.2f %7.2f    ", q.w,q.x,q.y,q.z);
@@ -165,7 +178,7 @@ void loop() {
             //Serial.write(teapotPacket, 14);
             teapotPacket[11]++; // packetCount, loops at 0xFF on purpose
         }
-        printf("\n");
+        if(features) printf("\n");
     }
 }
 

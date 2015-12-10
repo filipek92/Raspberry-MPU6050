@@ -48,10 +48,10 @@ MAIN = dmp
 
 .PHONY: depend clean
 
-all:    $(MAIN)
-        @echo  Simple compiler named mycc has been compiled
+all:	$(MAIN)
+		@echo  Simple compiler named mycc has been compiled
 
-$(MAIN): $(OBJS) 
+$(MAIN):$(OBJS) 
         $(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
 
 # this is a suffix replacement rule for building .o's from .c's
@@ -59,12 +59,12 @@ $(MAIN): $(OBJS)
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 # (see the gnu make manual section about automatic variables)
 .c.o:
-        $(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+		$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-        $(RM) *.o *~ $(MAIN)
+		$(RM) *.o *~ $(MAIN)
 
 depend: $(SRCS)
-        makedepend $(INCLUDES) $^
+		makedepend $(INCLUDES) $^
 
 # DO NOT DELETE THIS LINE -- make depend needs it

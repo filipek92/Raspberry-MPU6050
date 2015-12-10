@@ -25,7 +25,7 @@ LFLAGS =
 LIBS =
 
 # define the C source files
-SRCS = I2Cdev.cpp MPU6050.cpp demo_dmp.cp
+SRCS = I2Cdev.cpp MPU6050.cpp demo_dmp.cpp
 
 # define the C object files 
 #
@@ -35,7 +35,7 @@ SRCS = I2Cdev.cpp MPU6050.cpp demo_dmp.cp
 # Below we are replacing the suffix .c of all words in the macro SRCS
 # with the .o suffix
 #
-OBJS = $(SRCS:.c=.o)
+OBJS = $(SRCS:.cpp=.o)
 
 # define the executable file 
 MAIN = dmp
@@ -59,6 +59,9 @@ $(MAIN):$(OBJS)
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 # (see the gnu make manual section about automatic variables)
 .c.o:
+		$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+
+.cpp.o:
 		$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:

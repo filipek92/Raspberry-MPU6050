@@ -1,73 +1,37 @@
-#
-# 'make depend' uses makedepend to automatically generate dependencies 
-#               (dependencies are added to end of Makefile)
-# 'make'        build executable file 'mycc'
-# 'make clean'  removes all .o and executable files
-#
+# You need to "sudo apt-get install libgtkmm-3.0-dev" to build the demo_3d binary
 
-# define the C compiler to use
-CC = g++
+all: demo_raw demo_dmp demo_3d
 
-# define any compile-time flags
-CFLAGS = -Wall -g -DDMP_FIFO_RATE=9
-# define any directories containing header files other than /usr/include
-#
-INCLUDES = -I./lib
+HDRS = helper_3dmath.h I2Cdev.h MPU6050_6Axis_MotionApps20.h MPU6050.h demo_3d.h
+CMN_OBJS = I2Cdev.o MPU6050.o
+DMP_OBJS = demo_dmp.o
+RAW_OBJS = demo_raw.o
+D3D_OBJS = main_3d.o demo_3d.o
 
-# define library paths in addition to /usr/lib
-#   if I wanted to include libraries not in /usr/lib I'd specify
-#   their path using -Lpath, something like:
-LFLAGS =
+# Set DMP FIFO rate to 20Hz to avoid overflows on 3d demo.  See comments in
+# MPU6050_6Axis_MotionApps20.h for details.
 
-# define any libraries to link into executable:
-#   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
-#   option, something like (this will link in libmylib.so and libm.so:
-LIBS =
+CXXFLAGS = -DDMP_FIFO_RATE=9 -Wall -g -O2 `pkg-config gtkmm-3.0 --cflags --libs`
 
-# define the C source files
-SRCS = I2Cdev.cpp MPU6050.cpp demo_dmp.cpp
+$(CMN_OBJS) $(DMP_OBJS) $(RAW_OBJS) : $(HDRS)
 
-# define the C object files 
-#
-# This uses Suffix Replacement within a macro:
-#   $(name:string1=string2)
-#         For each word in 'name' replace 'string1' with 'string2'
-# Below we are replacing the suffix .c of all words in the macro SRCS
-# with the .o suffix
-#
-OBJS = $(SRCS:.cpp=.o)
+demo_raw: $(CMN_OBJS) $(RAW_OBJS)
+	$(CXX) -o $@ $^ -lm
 
-# define the executable file 
-MAIN = dmp
+demo_dmp: $(CMN_OBJS) $(DMP_OBJS)
+	$(CXX) -o $@ $^ -lm
 
-#
-# The following part of the makefile is generic; it can be used to 
-# build any executable just by changing the definitions above and by
-# deleting dependencies appended to the file from 'make depend'
-#
+demo_3d: $(D3D_OBJS) $(CMN_OBJS)
+	$(CXX) -o $@ $^ -lm `pkg-config gtkmm-3.0 --cflags --libs`
 
-.PHONY: depend clean
-
-all:	$(MAIN)
-		@echo  Simple compiler named mycc has been compiled
-
-$(MAIN):$(OBJS) 
-		$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
-
-# this is a suffix replacement rule for building .o's from .c's
-# it uses automatic variables $<: the name of the prerequisite of
-# the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
-# (see the gnu make manual section about automatic variables)
-.c.o:
-		$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
-
-.cpp.o:
-		$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+# 'make test_3d' will give you a test_3d that is controlled via the keyboard rather
+# than by moving the MPU6050.  Use the keys x, X, y, Y, z, Z, and q to exit.
+# Note it is the terminal you invoked the binary from that is listening for the
+# keyboard, not the window with the wireframe in it, so make sure the terminal
+# has input focus.
+test_3d: main_3d.cpp demo_3d.cpp demo_3d.h
+	$(CXX) $(CXXFLAGS) -DOFFLINE_TEST -o test_3d main_3d.cpp demo_3d.cpp
 
 clean:
-		$(RM) *.o *~ $(MAIN)
+	rm -f $(CMN_OBJS) $(DMP_OBJS) $(D3D_OBJS) $(RAW_OBJS) demo_raw demo_dmp demo_3d test_3d
 
-depend: $(SRCS)
-		makedepend $(INCLUDES) $^
-
-# DO NOT DELETE THIS LINE -- make depend needs it

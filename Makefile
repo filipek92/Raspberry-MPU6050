@@ -25,7 +25,7 @@ LFLAGS =
 LIBS =
 
 # define the C source files
-SRCS = I2Cdev.cpp MPU6050.cpp demo_dmp_network.cpp
+SRCS = lib/I2Cdev.cpp lib/MPU6050.cpp main.cpp
 
 # define the C object files 
 #
@@ -38,7 +38,7 @@ SRCS = I2Cdev.cpp MPU6050.cpp demo_dmp_network.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # define the executable file 
-MAIN = dmp_network
+MAIN = networkMPU
 
 #
 # The following part of the makefile is generic; it can be used to 
